@@ -1,0 +1,12 @@
+com.example.yourday.app-jetified-window-1.0.0-beta04-0 C:\Users\Aishwarya\.gradle\caches\transforms-3\2534cb10a453dd1f7318651afba4a7a8\transformed\jetified-window-1.0.0-beta04\res
+com.example.yourday.app-core-1.6.0-1 C:\Users\Aishwarya\.gradle\caches\transforms-3\637db3be6db9e256de9ec303499bc03c\transformed\core-1.6.0\res
+com.example.yourday.app-jetified-annotation-experimental-1.1.0-2 C:\Users\Aishwarya\.gradle\caches\transforms-3\79f51b0836b5c31401f7dcfae299e842\transformed\jetified-annotation-experimental-1.1.0\res
+com.example.yourday.app-jetified-window-java-1.0.0-beta04-3 C:\Users\Aishwarya\.gradle\caches\transforms-3\d5f225fe126177b59dd307998185e480\transformed\jetified-window-java-1.0.0-beta04\res
+com.example.yourday.app-debug-4 C:\Users\Aishwarya\Desktop\yourday\android\app\src\debug\res
+com.example.yourday.app-main-5 C:\Users\Aishwarya\Desktop\yourday\android\app\src\main\res
+com.example.yourday.app-pngs-6 C:\Users\Aishwarya\Desktop\yourday\build\app\generated\res\pngs\debug
+com.example.yourday.app-resValues-7 C:\Users\Aishwarya\Desktop\yourday\build\app\generated\res\resValues\debug
+com.example.yourday.app-rs-8 C:\Users\Aishwarya\Desktop\yourday\build\app\generated\res\rs\debug
+com.example.yourday.app-mergeDebugResources-9 C:\Users\Aishwarya\Desktop\yourday\build\app\intermediates\incremental\debug\mergeDebugResources\merged.dir
+com.example.yourday.app-mergeDebugResources-10 C:\Users\Aishwarya\Desktop\yourday\build\app\intermediates\incremental\debug\mergeDebugResources\stripped.dir
+com.example.yourday.app-merged_res-11 C:\Users\Aishwarya\Desktop\yourday\build\app\intermediates\merged_res\debug
