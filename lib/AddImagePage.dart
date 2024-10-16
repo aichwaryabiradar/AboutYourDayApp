@@ -1,7 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:yourday/DisplayImagePage.dart';
+import 'dart:io';
+import 'DisplayImagePage.dart'; // Import the newly created page
 
-class AddImagePage extends StatelessWidget {
+class AddImagePage extends StatefulWidget {
   const AddImagePage({super.key});
+
+  @override
+  _AddImagePageState createState() => _AddImagePageState();
+}
+
+class _AddImagePageState extends State<AddImagePage> {
+  final ImagePicker _picker = ImagePicker(); // ImagePicker instance
+
+  // Function to pick an image from the gallery
+  Future<void> _pickImageFromGallery() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      File image = File(pickedFile.path);
+      _navigateToDisplayPage(image);
+    }
+  }
+
+  // Function to capture an image from the camera
+  Future<void> _captureImageFromCamera() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.camera);
+
+    if (pickedFile != null) {
+      File image = File(pickedFile.path);
+      _navigateToDisplayPage(image);
+    }
+  }
+
+  // Function to navigate to the page to display the selected/captured image
+  void _navigateToDisplayPage(File image) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DisplayImagePage(image: image),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,39 +70,38 @@ class AddImagePage extends StatelessWidget {
                 const Padding(
                   padding: EdgeInsets.only(top: 50),
                   child: Text(
-                    "Let's see the beautiful pictures!", // Instruction text
+                    "Let's see the beautiful pictures!",
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
                       fontFamily: 'Gagalin-Regular',
                       color: Color.fromARGB(255, 6, 101, 118),
-                      
                     ),
-                    textAlign:TextAlign.center,
+                    textAlign: TextAlign.center,
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB( 20, 150, 20, 30),
+                  padding: const EdgeInsets.fromLTRB(20, 150, 20, 30),
                   child: ElevatedButton(
-                    onPressed: () {
-                      
-                    },
+                    onPressed: _captureImageFromCamera, // Capture from camera
                     child: Container(
                       decoration: BoxDecoration(
-                          color: const Color.fromRGBO(125, 218, 219, 1),
-                          borderRadius: BorderRadius.circular(40)),
+                        color: const Color.fromRGBO(125, 218, 219, 1),
+                        borderRadius: BorderRadius.circular(40),
+                      ),
                       width: 450,
                       height: 70,
                       child: const Center(
-                          child: Text(
-                        "Capture from Camera",
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'BrittanySignature',
-                          color: Color.fromARGB(255, 6, 101, 118),
+                        child: Text(
+                          "Capture from Camera",
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'BrittanySignature',
+                            color: Color.fromARGB(255, 6, 101, 118),
+                          ),
                         ),
-                      )),
+                      ),
                     ),
                   ),
                 ),
@@ -69,25 +109,25 @@ class AddImagePage extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 50),
                   child: ElevatedButton(
-                    onPressed: () {
-                      
-                    },
+                    onPressed: _pickImageFromGallery, // Pick from gallery
                     child: Container(
                       decoration: BoxDecoration(
-                          color: const Color.fromRGBO(125, 218, 219, 1),
-                          borderRadius: BorderRadius.circular(40)),
+                        color: const Color.fromRGBO(125, 218, 219, 1),
+                        borderRadius: BorderRadius.circular(40),
+                      ),
                       width: 450,
                       height: 70,
                       child: const Center(
-                          child: Text(
-                        "Add from Gallary",
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'BrittanySignature',
-                          color: Color.fromARGB(255, 6, 101, 118),
+                        child: Text(
+                          "Add from Gallery",
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'BrittanySignature',
+                            color: Color.fromARGB(255, 6, 101, 118),
+                          ),
                         ),
-                      )),
+                      ),
                     ),
                   ),
                 ),
@@ -99,3 +139,5 @@ class AddImagePage extends StatelessWidget {
     );
   }
 }
+
+

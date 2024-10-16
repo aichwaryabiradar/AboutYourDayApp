@@ -48,32 +48,64 @@ class _DrawingPageState extends State<DrawingPage> {
           },
         ),
       ),
-      body: Column(
+      body: Stack(
         children: [
-          buildColorSelector(),
-          buildStrokeSlider(),
-          Expanded(
-            child: RepaintBoundary( // Wrap the canvas in RepaintBoundary
-              key: _globalKey,
-              child: GestureDetector(
-                onPanUpdate: (details) {
-                  setState(() {
-                    RenderBox renderBox = context.findRenderObject() as RenderBox;
-                    _lines.add(
-                      DrawnLine(
-                        renderBox.globalToLocal(details.globalPosition),
-                        selectedColor,
-                        strokeWidth,
-                      ),
-                    );
-                  });
-                },
-                onPanEnd: (details) {
-                  _lines.add(DrawnLine(null, selectedColor, strokeWidth)); // Adds a break between strokes
-                },
-                child: CustomPaint(
-                  painter: DrawingPainter(_lines),
-                  size: Size.infinite,
+          Column(
+            children: [
+              buildColorSelector(),
+              buildStrokeSlider(),
+              Expanded(
+                child: RepaintBoundary(
+                  key: _globalKey,
+                  child: GestureDetector(
+                    onPanUpdate: (details) {
+                      setState(() {
+                        RenderBox renderBox = context.findRenderObject() as RenderBox;
+                        _lines.add(
+                          DrawnLine(
+                            renderBox.globalToLocal(details.globalPosition),
+                            selectedColor,
+                            strokeWidth,
+                          ),
+                        );
+                      });
+                    },
+                    onPanEnd: (details) {
+                      _lines.add(DrawnLine(null, selectedColor, strokeWidth)); // Adds a break between strokes
+                    },
+                    child: CustomPaint(
+                      painter: DrawingPainter(_lines),
+                      size: Size.infinite,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child: Container(
+              padding: EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: Colors.blue,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    offset: Offset(0, 2),
+                    blurRadius: 5.0,
+                  ),
+                ],
+              ),
+              child: ElevatedButton(
+                onPressed: _saveToFile, // Call the save function when tapped
+                child: Text(
+                  'SAVE',
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue, // Background color for the button
                 ),
               ),
             ),
@@ -96,7 +128,6 @@ class _DrawingPageState extends State<DrawingPage> {
           buildColorButton(Colors.yellow),
           buildEraserButton(),
           buildClearButton(), // Clear button
-          buildSaveButton(),  // Save button next to the Clear button
         ],
       ),
     );
@@ -179,33 +210,6 @@ class _DrawingPageState extends State<DrawingPage> {
         child: Center(
           child: Icon(
             Icons.clear,
-            color: Colors.black,
-            size: 20,
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Save button to save the drawing
-  Widget buildSaveButton() {
-    return GestureDetector(
-      onTap: _saveToFile, // Call the save function when tapped
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 8.0),
-        width: 36.0,
-        height: 36.0,
-        decoration: BoxDecoration(
-          color: Color.fromARGB(255, 255, 255, 255),
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: Colors.black,
-            width: 3.0,
-          ),
-        ),
-        child: Center(
-          child: Icon(
-            Icons.save,
             color: Colors.black,
             size: 20,
           ),

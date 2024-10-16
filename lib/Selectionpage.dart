@@ -132,34 +132,3 @@ class SelectionPage extends StatelessWidget {
     );
   }
 }
-
-// Sample pages for navigation
-/*class WritePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Write Page')),
-      body: Center(child: Text('This is the Write Page')),
-    );
-  }
-}*/
-
-/*class RecordVoicePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Record Voice Page')),
-      body: Center(child: Text('This is the Record Voice Page')),
-    );
-  }
-}*/
-
-/*class AddImageVideoPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Add Image/Video Page')),
-      body: Center(child: Text('This is the Add Image/Video Page')),
-    );
-  }
-}*/
