@@ -3,6 +3,12 @@ import 'package:intl/intl.dart';
 import 'package:record/record.dart';
 import 'package:audioplayers/audioplayers.dart';
 
+import 'dart:io';
+
+import 'package:yourday/RecordingsListPage.dart';
+
+
+
 class RecordVoicePage extends StatefulWidget {
   final DateTime selectedDay;
   const RecordVoicePage({super.key, required this.selectedDay});
@@ -12,36 +18,34 @@ class RecordVoicePage extends StatefulWidget {
 }
 
 class _RecordVoicePageState extends State<RecordVoicePage> {
-  final _record = Record(); // Instance of the Record class for recording
-  final _audioPlayer = AudioPlayer(); // Instance of AudioPlayer for playback
+  final _record = Record();
+  final _audioPlayer = AudioPlayer();
   bool _isRecording = false;
-  bool _isPlaying = false;
   String? _recordedFilePath;
 
   @override
   void dispose() {
-    _record.dispose(); // Dispose the record object when the widget is disposed
-    _audioPlayer.dispose(); // Dispose the audio player
+    _record.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
   Future<void> _startRecording() async {
     if (await _record.hasPermission()) {
-      final path = 'voice_recording.m4a'; // You can specify a custom path
+      final timestamp = DateTime.now().toIso8601String().replaceAll(":", "-");
+      final path = '/storage/emulated/0/Recordings/voice_recording_$timestamp.m4a';
 
       await _record.start(
         path: path,
-        encoder: AudioEncoder.aacLc, // Use the correct encoder
+        encoder: AudioEncoder.aacLc,
         bitRate: 128000,
         samplingRate: 44100,
       );
 
       setState(() {
         _isRecording = true;
-        _recordedFilePath = path; // Save the path to the recorded file
+        _recordedFilePath = path;
       });
-    } else {
-      // Handle the case where permissions are not granted
     }
   }
 
@@ -52,19 +56,13 @@ class _RecordVoicePageState extends State<RecordVoicePage> {
     });
   }
 
-  Future<void> _playRecording() async {
-    if (_recordedFilePath != null) {
-      await _audioPlayer.play(DeviceFileSource(_recordedFilePath!));
-      setState(() {
-        _isPlaying = true;
-      });
-
-      _audioPlayer.onPlayerComplete.listen((event) {
-        setState(() {
-          _isPlaying = false;
-        });
-      });
-    }
+  void _navigateToRecordingsList() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RecordingsListPage(), // Navigate to the recordings list page
+      ),
+    );
   }
 
   @override
@@ -84,7 +82,7 @@ class _RecordVoicePageState extends State<RecordVoicePage> {
               child: Text(
                 "LET’S LISTEN TO WHAT YOU HAVE TODAY!",
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Color.fromRGBO(108, 10, 193, 1),
                   fontFamily: 'Gagalin-Regular',
                   fontSize: 32,
@@ -111,22 +109,9 @@ class _RecordVoicePageState extends State<RecordVoicePage> {
               color: const Color.fromRGBO(194, 143, 239, 1),
             ),
           ),
-          Opacity(
-            opacity: 0.4,
-            child: Container(
-              width: 300,
-              height: 400,
-              decoration: BoxDecoration(
-                image: const DecorationImage(
-                  fit: BoxFit.cover,
-                  image: AssetImage('assets/Voicerecord.png'),
-                ),
-              ),
-            ),
-          ),
           const Spacer(),
           Padding(
-            padding: const EdgeInsets.only(bottom: 30.0),
+            padding: const EdgeInsets.only(bottom: 15.0),
             child: Container(
               height: 80,
               width: 80,
@@ -155,41 +140,21 @@ class _RecordVoicePageState extends State<RecordVoicePage> {
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: ElevatedButton(
-              onPressed: _recordedFilePath != null && !_isPlaying ? _playRecording : null,
-              child: Text(
-                _isPlaying ? "Playing..." : "Play Recording",
-                style: const TextStyle(
+              onPressed: _navigateToRecordingsList,
+              child: const Text(
+                "Show Recordings",
+                style: TextStyle(
                   fontFamily: 'Gagalin-Regular',
                   color: Colors.white,
                   fontSize: 18,
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15), backgroundColor: Color.fromRGBO(108, 10, 193, 1),
+                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                backgroundColor: Color.fromRGBO(108, 10, 193, 1),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Container(
-              height: 60,
-              width: 100,
-              child: Center(
-                child: Text(
-                  "SAVE",
-                  style: TextStyle(
-                    fontFamily: 'Gagalin-Regular',
-                    color: Colors.white,
-                    fontSize: 26,
-                  ),
-                ),
-              ),
-              decoration: BoxDecoration(
-                color: Color.fromRGBO(108, 10, 193, 1),
-                borderRadius: BorderRadius.circular(30),
               ),
             ),
           ),
