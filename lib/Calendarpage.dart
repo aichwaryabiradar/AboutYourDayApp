@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:yourday/Homepage.dart';
 import 'package:yourday/Selectionpage.dart';
 
 class CalendarPage extends StatefulWidget {
@@ -21,8 +22,18 @@ class _CalendarPageState extends State<CalendarPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(30, 159, 234, 1),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
+            );
+          },
+        ),
       ),
       backgroundColor: const Color.fromARGB(255, 181, 220, 255),
+      
       body: Center(
         child: Stack(
           children: <Widget>[

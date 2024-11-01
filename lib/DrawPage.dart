@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:path_provider/path_provider.dart'; // For file storage
+import 'package:path_provider/path_provider.dart';
 import 'package:yourday/Selectionpage.dart';
 
 void main() => runApp(DrawPage());
@@ -27,7 +27,7 @@ class _DrawingPageState extends State<DrawingPage> {
   Color selectedColor = Colors.black;
   double strokeWidth = 4.0;
   bool isEraserSelected = false;
-  final GlobalKey _globalKey = GlobalKey(); // Key for RepaintBoundary
+  final GlobalKey _globalKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -44,69 +44,66 @@ class _DrawingPageState extends State<DrawingPage> {
               MaterialPageRoute(
                 builder: (context) => SelectionPage(selectedDay: selectedDay),
               ),
-            ); // Navigate back
+            );
           },
         ),
       ),
-      body: Stack(
+      body: Column(
         children: [
-          Column(
-            children: [
-              buildColorSelector(),
-              buildStrokeSlider(),
-              Expanded(
-                child: RepaintBoundary(
-                  key: _globalKey,
-                  child: GestureDetector(
-                    onPanUpdate: (details) {
-                      setState(() {
-                        RenderBox renderBox = context.findRenderObject() as RenderBox;
-                        _lines.add(
-                          DrawnLine(
-                            renderBox.globalToLocal(details.globalPosition),
-                            selectedColor,
-                            strokeWidth,
-                          ),
-                        );
-                      });
-                    },
-                    onPanEnd: (details) {
-                      _lines.add(DrawnLine(null, selectedColor, strokeWidth)); // Adds a break between strokes
-                    },
-                    child: CustomPaint(
-                      painter: DrawingPainter(_lines),
-                      size: Size.infinite,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+          // Controls Container
+          Container(
+            color: Colors.grey[200],
+            padding: EdgeInsets.symmetric(vertical: 8.0),
+            child: Column(
+              children: [
+                buildColorSelector(),
+                buildStrokeSlider(),
+              ],
+            ),
           ),
-          Positioned(
-            bottom: 20,
-            right: 20,
-            child: Container(
-              padding: EdgeInsets.all(8.0),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    offset: Offset(0, 2),
-                    blurRadius: 5.0,
-                  ),
-                ],
+          // Drawing Area
+          Expanded(
+            child: RepaintBoundary(
+              key: _globalKey,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque, // Ensures full area is tappable
+                onPanUpdate: (details) {
+                  setState(() {
+                    RenderBox renderBox =
+                        _globalKey.currentContext!.findRenderObject()
+                            as RenderBox;
+                    Offset localPosition =
+                        renderBox.globalToLocal(details.globalPosition);
+                    _lines.add(
+                      DrawnLine(
+                        localPosition,
+                        selectedColor,
+                        strokeWidth,
+                      ),
+                    );
+                  });
+                },
+                onPanEnd: (details) {
+                  _lines.add(DrawnLine(null, selectedColor, strokeWidth)); // Adds a break between strokes
+                },
+                child: CustomPaint(
+                  painter: DrawingPainter(_lines),
+                  size: Size.infinite,
+                ),
               ),
-              child: ElevatedButton(
-                onPressed: _saveToFile, // Call the save function when tapped
-                child: Text(
-                  'SAVE',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue, // Background color for the button
-                ),
+            ),
+          ),
+          // Save Button Positioned at Bottom
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: _saveToFile,
+              child: Text(
+                'SAVE',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
               ),
             ),
           ),
@@ -117,7 +114,7 @@ class _DrawingPageState extends State<DrawingPage> {
 
   Widget buildColorSelector() {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(5.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -127,7 +124,7 @@ class _DrawingPageState extends State<DrawingPage> {
           buildColorButton(Colors.blue),
           buildColorButton(Colors.yellow),
           buildEraserButton(),
-          buildClearButton(), // Clear button
+          buildClearButton(),
         ],
       ),
     );
@@ -137,7 +134,7 @@ class _DrawingPageState extends State<DrawingPage> {
     return GestureDetector(
       onTap: () {
         setState(() {
-          isEraserSelected = false; // Disable eraser when selecting a color
+          isEraserSelected = false;
           selectedColor = color;
         });
       },
@@ -162,7 +159,7 @@ class _DrawingPageState extends State<DrawingPage> {
       onTap: () {
         setState(() {
           isEraserSelected = true;
-          selectedColor = Colors.white; // Eraser will paint in white
+          selectedColor = Colors.white;
         });
       },
       child: Container(
@@ -170,7 +167,7 @@ class _DrawingPageState extends State<DrawingPage> {
         width: 36.0,
         height: 36.0,
         decoration: BoxDecoration(
-          color: Colors.white, // Eraser is shown as white
+          color: Colors.white,
           shape: BoxShape.circle,
           border: Border.all(
             color: isEraserSelected ? Colors.grey : Colors.black,
@@ -192,7 +189,7 @@ class _DrawingPageState extends State<DrawingPage> {
     return GestureDetector(
       onTap: () {
         setState(() {
-          _lines.clear(); // Clears the drawing
+          _lines.clear();
         });
       },
       child: Container(
@@ -200,7 +197,7 @@ class _DrawingPageState extends State<DrawingPage> {
         width: 36.0,
         height: 36.0,
         decoration: BoxDecoration(
-          color: Color.fromARGB(255, 255, 255, 255),
+          color: Colors.white,
           shape: BoxShape.circle,
           border: Border.all(
             color: Colors.black,
@@ -239,16 +236,18 @@ class _DrawingPageState extends State<DrawingPage> {
     );
   }
 
-  // Function to save the canvas as an image file
   Future<void> _saveToFile() async {
     try {
-      RenderRepaintBoundary boundary = _globalKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+      RenderRepaintBoundary boundary = _globalKey.currentContext!
+          .findRenderObject() as RenderRepaintBoundary;
       ui.Image image = await boundary.toImage();
-      ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      ByteData? byteData =
+          await image.toByteData(format: ui.ImageByteFormat.png);
       Uint8List pngBytes = byteData!.buffer.asUint8List();
 
       final directory = (await getApplicationDocumentsDirectory()).path;
-      final filePath = '$directory/drawing_${DateTime.now().millisecondsSinceEpoch}.png';
+      final filePath =
+          '$directory/drawing_${DateTime.now().millisecondsSinceEpoch}.png';
       final file = File(filePath);
       await file.writeAsBytes(pngBytes);
 
@@ -289,6 +288,6 @@ class DrawingPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true; // Always repaint when lines change
+    return true;
   }
 }
