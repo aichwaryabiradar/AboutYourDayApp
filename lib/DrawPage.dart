@@ -65,31 +65,42 @@ class _DrawingPageState extends State<DrawingPage> {
           Expanded(
             child: RepaintBoundary(
               key: _globalKey,
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque, // Ensures full area is tappable
-                onPanUpdate: (details) {
-                  setState(() {
-                    RenderBox renderBox =
-                        _globalKey.currentContext!.findRenderObject()
-                            as RenderBox;
-                    Offset localPosition =
-                        renderBox.globalToLocal(details.globalPosition);
-                    _lines.add(
-                      DrawnLine(
-                        localPosition,
-                        selectedColor,
-                        strokeWidth,
-                      ),
-                    );
-                  });
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onPanUpdate: (details) {
+                      setState(() {
+                        RenderBox renderBox =
+                            _globalKey.currentContext!.findRenderObject()
+                                as RenderBox;
+                        Offset localPosition =
+                            renderBox.globalToLocal(details.globalPosition);
+
+                        // Ensure the drawing point is within drawing area boundaries
+                        if (localPosition.dy >= 0 &&
+                            localPosition.dy <= constraints.maxHeight &&
+                            localPosition.dx >= 0 &&
+                            localPosition.dx <= constraints.maxWidth) {
+                          _lines.add(
+                            DrawnLine(
+                              localPosition,
+                              selectedColor,
+                              strokeWidth,
+                            ),
+                          );
+                        }
+                      });
+                    },
+                    onPanEnd: (details) {
+                      _lines.add(DrawnLine(null, selectedColor, strokeWidth)); // Adds a break between strokes
+                    },
+                    child: CustomPaint(
+                      painter: DrawingPainter(_lines),
+                      size: Size.infinite,
+                    ),
+                  );
                 },
-                onPanEnd: (details) {
-                  _lines.add(DrawnLine(null, selectedColor, strokeWidth)); // Adds a break between strokes
-                },
-                child: CustomPaint(
-                  painter: DrawingPainter(_lines),
-                  size: Size.infinite,
-                ),
               ),
             ),
           ),

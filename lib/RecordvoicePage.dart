@@ -109,6 +109,12 @@ class _RecordVoicePageState extends State<RecordVoicePage> {
               color: const Color.fromRGBO(194, 143, 239, 1),
             ),
           ),
+          const SizedBox(height: 20), // Spacer between date container and image
+        Image.asset(
+          'assets/Voicerecord.png',
+          height: 100,  // Adjust the height as needed
+          width: 100,   // Adjust the width as needed
+        ),
           const Spacer(),
           Padding(
             padding: const EdgeInsets.only(bottom: 15.0),

@@ -53,7 +53,7 @@ class _CalendarPageState extends State<CalendarPage> {
                   ),
                 ),
                 Container(
-                  height: screenSize.height * 0.4,
+                  height: screenSize.height * 0.5,
                   width: screenSize.width * 0.7,
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.6),

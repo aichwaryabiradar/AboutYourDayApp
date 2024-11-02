@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:yourday/DisplayImagePage.dart';
 import 'dart:io';
-import 'DisplayImagePage.dart'; // Import the newly created page
 
 class AddImagePage extends StatefulWidget {
   const AddImagePage({super.key});
@@ -12,7 +11,7 @@ class AddImagePage extends StatefulWidget {
 }
 
 class _AddImagePageState extends State<AddImagePage> {
-  final ImagePicker _picker = ImagePicker(); // ImagePicker instance
+  final ImagePicker _picker = ImagePicker();
 
   // Function to pick an image from the gallery
   Future<void> _pickImageFromGallery() async {
@@ -34,7 +33,7 @@ class _AddImagePageState extends State<AddImagePage> {
     }
   }
 
-  // Function to navigate to the page to display the selected/captured image
+  // Function to navigate to the DisplayImagePage
   void _navigateToDisplayPage(File image) {
     Navigator.push(
       context,
@@ -83,7 +82,7 @@ class _AddImagePageState extends State<AddImagePage> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 150, 20, 30),
                   child: ElevatedButton(
-                    onPressed: _captureImageFromCamera, // Capture from camera
+                    onPressed: _captureImageFromCamera,
                     child: Container(
                       decoration: BoxDecoration(
                         color: const Color.fromRGBO(125, 218, 219, 1),
@@ -109,7 +108,7 @@ class _AddImagePageState extends State<AddImagePage> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 50),
                   child: ElevatedButton(
-                    onPressed: _pickImageFromGallery, // Pick from gallery
+                    onPressed: _pickImageFromGallery,
                     child: Container(
                       decoration: BoxDecoration(
                         color: const Color.fromRGBO(125, 218, 219, 1),
@@ -139,5 +138,3 @@ class _AddImagePageState extends State<AddImagePage> {
     );
   }
 }
-
-

@@ -1,106 +1,70 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
-class DisplayImagePage extends StatefulWidget {
-  const DisplayImagePage({Key? key, required File image}) : super(key: key);
+class DisplayImagePage extends StatelessWidget {
+  final File image;
 
-  @override
-  State<DisplayImagePage> createState() => _DisplayImagePageState();
-}
-
-class _DisplayImagePageState extends State<DisplayImagePage> {
-  final List<File> _images = []; // List to store selected images
-
-  // Method to pick an image from gallery
-  Future<void> _pickImageFromGallery() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile == null) return;
-
-    setState(() {
-      _images.add(File(pickedFile.path)); // Add image to the list
-    });
-  }
-
-  // Method to pick an image from camera
-  Future<void> _pickImageFromCamera() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.camera);
-    if (pickedFile == null) return;
-
-    setState(() {
-      _images.add(File(pickedFile.path)); // Add image to the list
-    });
-  }
-
-  // Show options to pick image from gallery or camera
-  void _showImagePickerOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.all(20),
-          height: MediaQuery.of(context).size.height / 4,
-          child: Column(
-            children: [
-              ListTile(
-                leading: const Icon(Icons.photo),
-                title: const Text("Pick from Gallery"),
-                onTap: () {
-                  Navigator.of(context).pop(); // Close the modal
-                  _pickImageFromGallery(); // Pick image from gallery
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: const Text("Capture from Camera"),
-                onTap: () {
-                  Navigator.of(context).pop(); // Close the modal
-                  _pickImageFromCamera(); // Pick image from camera
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+  const DisplayImagePage({super.key, required this.image});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Your Selected Images"),
+        title: const Text('Captured Image'),
         backgroundColor: const Color.fromRGBO(125, 218, 219, 1),
       ),
       backgroundColor: const Color.fromRGBO(206, 248, 249, 1),
-      body: _images.isEmpty
-          ? const Center(child: Text("No images selected."))
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _images.length,
-              itemBuilder: (context, index) {
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  height: 250,
+      body: Stack(
+        children: [
+          // Centered image container
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 300,
+                  height: 300,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    image: DecorationImage(
-                      image: FileImage(_images[index]),
+                    border: Border.all(color: Colors.grey, width: 4),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.file(
+                      image,
                       fit: BoxFit.cover,
                     ),
                   ),
-                );
-              },
+                ),
+              ],
             ),
-      floatingActionButton: Positioned(
-        top: 10,
-        right: 10,
-        child: FloatingActionButton(
-          onPressed: () {
-            _showImagePickerOptions(context);
-          },
-          child: const Icon(Icons.add),
-        ),
+          ),
+          // Positioned button at bottom right
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context); // Return to AddImagePage for a new capture
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(125, 218, 219, 1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              ),
+              child: const Text(
+                "Add Image",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromARGB(255, 6, 101, 118),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
