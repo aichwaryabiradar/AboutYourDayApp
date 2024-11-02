@@ -11,9 +11,10 @@ import 'package:yourday/RecordingsListPage.dart';
 
 class RecordVoicePage extends StatefulWidget {
   final DateTime selectedDay;
-  const RecordVoicePage({super.key, required this.selectedDay});
+   RecordVoicePage({super.key, required this.selectedDay});
 
   @override
+  
   _RecordVoicePageState createState() => _RecordVoicePageState();
 }
 
@@ -67,6 +68,7 @@ class _RecordVoicePageState extends State<RecordVoicePage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
     final formattedDate = DateFormat('dd-MM-yyyy').format(widget.selectedDay);
 
     return Scaffold(
@@ -91,8 +93,8 @@ class _RecordVoicePageState extends State<RecordVoicePage> {
             ),
           ),
           Container(
-            height: 60,
-            width: 300,
+            height: screenSize.height*0.06,
+            width: screenSize.width*0.5,
             child: Center(
               child: Text(
                 formattedDate,
@@ -109,15 +111,15 @@ class _RecordVoicePageState extends State<RecordVoicePage> {
               color: const Color.fromRGBO(194, 143, 239, 1),
             ),
           ),
-          const SizedBox(height: 20), // Spacer between date container and image
+          const SizedBox(height: 5), // Spacer between date container and image
         Image.asset(
           'assets/Voicerecord.png',
-          height: 100,  // Adjust the height as needed
-          width: 100,   // Adjust the width as needed
+          height: screenSize.height * 0.5,  // Adjust the height as needed
+          width: screenSize.width * 0.6,  // Adjust the width as needed
         ),
           const Spacer(),
           Padding(
-            padding: const EdgeInsets.only(bottom: 15.0),
+            padding: const EdgeInsets.only(bottom: 20.0),
             child: Container(
               height: 80,
               width: 80,
@@ -144,7 +146,7 @@ class _RecordVoicePageState extends State<RecordVoicePage> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(10.0),
+            padding: const EdgeInsets.only(bottom: 40),
             child: ElevatedButton(
               onPressed: _navigateToRecordingsList,
               child: const Text(

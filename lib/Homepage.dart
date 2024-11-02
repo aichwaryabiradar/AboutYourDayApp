@@ -63,7 +63,7 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20), // Adds some spacing between the container and the image
+                const SizedBox(height: 10), // Adds some spacing between the container and the image
                 Container(
                   width: screenSize.width * 1,
                   height: screenSize.height * 0.3,

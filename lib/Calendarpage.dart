@@ -23,7 +23,7 @@ class _CalendarPageState extends State<CalendarPage> {
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(30, 159, 234, 1),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pushReplacement(
               context,
@@ -33,7 +33,6 @@ class _CalendarPageState extends State<CalendarPage> {
         ),
       ),
       backgroundColor: const Color.fromARGB(255, 181, 220, 255),
-      
       body: Center(
         child: Stack(
           children: <Widget>[
@@ -53,7 +52,7 @@ class _CalendarPageState extends State<CalendarPage> {
                   ),
                 ),
                 Container(
-                  height: screenSize.height * 0.5,
+                  height: screenSize.height * 0.45, // Adjusted height
                   width: screenSize.width * 0.7,
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.6),
@@ -72,7 +71,6 @@ class _CalendarPageState extends State<CalendarPage> {
                         _selectedDay = selectedDay;
                         _focusedDay = focusedDay;
                       });
-                      // Navigate to the SelectionPage when a date is selected
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -90,11 +88,27 @@ class _CalendarPageState extends State<CalendarPage> {
                     onPageChanged: (focusedDay) {
                       _focusedDay = focusedDay;
                     },
+                    calendarStyle: CalendarStyle(
+                      cellMargin: EdgeInsets.zero, // No margin around cells
+                      defaultTextStyle: TextStyle(color: Colors.black),
+                      todayDecoration: BoxDecoration(
+                        color: Colors.blueAccent,
+                        shape: BoxShape.circle,
+                      ),
+                      selectedDecoration: BoxDecoration(
+                        color: Colors.orange,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    daysOfWeekStyle: DaysOfWeekStyle(
+                      weekendStyle: TextStyle(color: Colors.red),
+                      weekdayStyle: TextStyle(color: Colors.black),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start, // Aligns image to the left
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Container(
                       width: screenSize.width * 0.7,
