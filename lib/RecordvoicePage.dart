@@ -1,40 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:record/record.dart';
-import 'package:audioplayers/audioplayers.dart';
-
 import 'dart:io';
-
-import 'package:yourday/RecordingsListPage.dart';
-
-
+import 'package:path_provider/path_provider.dart';
+import 'RecordingsListPage.dart';
 
 class RecordVoicePage extends StatefulWidget {
   final DateTime selectedDay;
-   RecordVoicePage({super.key, required this.selectedDay});
+  RecordVoicePage({super.key, required this.selectedDay});
 
   @override
-  
   _RecordVoicePageState createState() => _RecordVoicePageState();
 }
 
 class _RecordVoicePageState extends State<RecordVoicePage> {
   final _record = Record();
-  final _audioPlayer = AudioPlayer();
   bool _isRecording = false;
-  String? _recordedFilePath;
+  List<Map<String, String>> _recordings = []; // To store recording details
 
   @override
   void dispose() {
     _record.dispose();
-    _audioPlayer.dispose();
     super.dispose();
   }
 
   Future<void> _startRecording() async {
     if (await _record.hasPermission()) {
+      final directory = await getApplicationDocumentsDirectory();
       final timestamp = DateTime.now().toIso8601String().replaceAll(":", "-");
-      final path = '/storage/emulated/0/Recordings/voice_recording_$timestamp.m4a';
+      final path = '${directory.path}/voice_recording_$timestamp.m4a';
 
       await _record.start(
         path: path,
@@ -44,24 +38,30 @@ class _RecordVoicePageState extends State<RecordVoicePage> {
       );
 
       setState(() {
-        _isRecording = true;
-        _recordedFilePath = path;
+        _isRecording = true; // Update UI to show recording state
       });
     }
   }
 
   Future<void> _stopRecording() async {
-    await _record.stop();
-    setState(() {
-      _isRecording = false;
-    });
+    final path = await _record.stop();
+    if (path != null) {
+      setState(() {
+        _isRecording = false; // Update UI to stop recording state
+        // Add recording with default title as selected date
+        _recordings.add({
+          'title': DateFormat('dd-MM-yyyy').format(widget.selectedDay),
+          'path': path,
+        });
+      });
+    }
   }
 
   void _navigateToRecordingsList() {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => RecordingsListPage(), // Navigate to the recordings list page
+        builder: (context) => RecordingsListPage(recordings: _recordings), // Pass _recordings here
       ),
     );
   }
@@ -93,8 +93,8 @@ class _RecordVoicePageState extends State<RecordVoicePage> {
             ),
           ),
           Container(
-            height: screenSize.height*0.06,
-            width: screenSize.width*0.5,
+            height: screenSize.height * 0.06,
+            width: screenSize.width * 0.5,
             child: Center(
               child: Text(
                 formattedDate,
@@ -111,12 +111,12 @@ class _RecordVoicePageState extends State<RecordVoicePage> {
               color: const Color.fromRGBO(194, 143, 239, 1),
             ),
           ),
-          const SizedBox(height: 5), // Spacer between date container and image
-        Image.asset(
-          'assets/Voicerecord.png',
-          height: screenSize.height * 0.5,  // Adjust the height as needed
-          width: screenSize.width * 0.6,  // Adjust the width as needed
-        ),
+          const SizedBox(height: 5),
+          Image.asset(
+            'assets/Voicerecord.png',
+            height: screenSize.height * 0.5,
+            width: screenSize.width * 0.6,
+          ),
           const Spacer(),
           Padding(
             padding: const EdgeInsets.only(bottom: 20.0),

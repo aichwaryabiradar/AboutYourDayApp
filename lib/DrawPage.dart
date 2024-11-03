@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:yourday/Selectionpage.dart';
 
@@ -51,56 +52,74 @@ class _DrawingPageState extends State<DrawingPage> {
       body: Column(
         children: [
           // Controls Container
-          Container(
-            color: Colors.grey[200],
-            padding: EdgeInsets.symmetric(vertical: 8.0),
-            child: Column(
-              children: [
-                buildColorSelector(),
-                buildStrokeSlider(),
-              ],
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                color: ui.Color.fromARGB(255, 244, 237, 184),
+              ),
+              padding: EdgeInsets.symmetric(vertical: 8.0),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      buildColorPickerButton(),
+                      buildEraserButton(),
+                      buildUndoButton(),
+                      buildClearButton(),
+                    ],
+                  ),
+                  buildStrokeSlider(),
+                ],
+              ),
             ),
           ),
+
           // Drawing Area
           Expanded(
             child: RepaintBoundary(
               key: _globalKey,
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return GestureDetector(
-                    behavior: HitTestBehavior.translucent,
-                    onPanUpdate: (details) {
-                      setState(() {
-                        RenderBox renderBox =
-                            _globalKey.currentContext!.findRenderObject()
-                                as RenderBox;
+              child: Container(
+                color: Colors.white, // Set canvas to pure white
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onPanUpdate: (details) {
+                        RenderBox renderBox = _globalKey.currentContext!
+                            .findRenderObject() as RenderBox;
                         Offset localPosition =
                             renderBox.globalToLocal(details.globalPosition);
 
-                        // Ensure the drawing point is within drawing area boundaries
+                        // Constrain drawing to within the canvas
                         if (localPosition.dy >= 0 &&
                             localPosition.dy <= constraints.maxHeight &&
                             localPosition.dx >= 0 &&
                             localPosition.dx <= constraints.maxWidth) {
-                          _lines.add(
-                            DrawnLine(
-                              localPosition,
-                              selectedColor,
-                              strokeWidth,
-                            ),
-                          );
+                          setState(() {
+                            _lines.add(
+                              DrawnLine(
+                                localPosition,
+                                isEraserSelected ? Colors.white : selectedColor,
+                                strokeWidth,
+                              ),
+                            );
+                          });
                         }
-                      });
-                    },
-                    onPanEnd: (details) {
-                      _lines.add(DrawnLine(null, selectedColor, strokeWidth)); // Adds a break between strokes
-                    },
-                    child: CustomPaint(
-                      painter: DrawingPainter(_lines),
-                      size: Size.infinite,
-                    ),
-                  );
-                },
+                      },
+                      onPanEnd: (details) {
+                        // Add null to separate line segments
+                        _lines.add(DrawnLine(null, selectedColor, strokeWidth));
+                      },
+                      child: CustomPaint(
+                        painter: DrawingPainter(_lines),
+                        size: Size.infinite,
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -114,7 +133,7 @@ class _DrawingPageState extends State<DrawingPage> {
                 style: TextStyle(color: Colors.white, fontSize: 16),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
+                backgroundColor: Colors.amberAccent,
               ),
             ),
           ),
@@ -123,43 +142,27 @@ class _DrawingPageState extends State<DrawingPage> {
     );
   }
 
-  Widget buildColorSelector() {
-    return Padding(
-      padding: const EdgeInsets.all(5.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          buildColorButton(Colors.black),
-          buildColorButton(Colors.red),
-          buildColorButton(Colors.green),
-          buildColorButton(Colors.blue),
-          buildColorButton(Colors.yellow),
-          buildEraserButton(),
-          buildClearButton(),
-        ],
-      ),
-    );
-  }
-
-  Widget buildColorButton(Color color) {
+  Widget buildColorPickerButton() {
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          isEraserSelected = false;
-          selectedColor = color;
-        });
-      },
+      onTap: _openColorPicker,
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 8.0),
-        width: 36.0,
-        height: 36.0,
+        padding: EdgeInsets.all(4.0),
         decoration: BoxDecoration(
-          color: color,
+          color: Colors.white,
           shape: BoxShape.circle,
           border: Border.all(
-            color: selectedColor == color ? Colors.grey : Colors.white,
+            color: isEraserSelected
+                ? ui.Color.fromARGB(255, 0, 0, 0)
+                : selectedColor,
             width: 3.0,
           ),
+        ),
+        child: Icon(
+          Icons.color_lens,
+          color: isEraserSelected
+              ? const ui.Color.fromARGB(255, 0, 0, 0)
+              : selectedColor,
+          size: 24.0,
         ),
       ),
     );
@@ -169,8 +172,7 @@ class _DrawingPageState extends State<DrawingPage> {
     return GestureDetector(
       onTap: () {
         setState(() {
-          isEraserSelected = true;
-          selectedColor = Colors.white;
+          isEraserSelected = !isEraserSelected;
         });
       },
       child: Container(
@@ -187,7 +189,39 @@ class _DrawingPageState extends State<DrawingPage> {
         ),
         child: Center(
           child: Icon(
-            Icons.cleaning_services,
+            Icons.cleaning_services, // Substitute for an eraser icon
+            color: isEraserSelected ? Colors.grey : Colors.black,
+            size: 20,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildUndoButton() {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          if (_lines.isNotEmpty) {
+            _lines.removeLast(); // Removes the most recent change
+          }
+        });
+      },
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 8.0),
+        width: 36.0,
+        height: 36.0,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: Colors.black,
+            width: 3.0,
+          ),
+        ),
+        child: Center(
+          child: Icon(
+            Icons.undo,
             color: Colors.black,
             size: 20,
           ),
@@ -200,7 +234,7 @@ class _DrawingPageState extends State<DrawingPage> {
     return GestureDetector(
       onTap: () {
         setState(() {
-          _lines.clear();
+          _lines.clear(); // Clears the entire canvas
         });
       },
       child: Container(
@@ -227,23 +261,63 @@ class _DrawingPageState extends State<DrawingPage> {
   }
 
   Widget buildStrokeSlider() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text("Stroke Width: "),
-        Slider(
-          value: strokeWidth,
-          min: 1.0,
-          max: 20.0,
-          divisions: 19,
-          label: strokeWidth.round().toString(),
-          onChanged: (value) {
-            setState(() {
-              strokeWidth = value;
-            });
-          },
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text("Stroke Width: "),
+          Expanded(
+            child: Slider(
+              value: strokeWidth,
+              min: 1.0,
+              max: 20.0,
+              divisions: 19,
+              label: strokeWidth.round().toString(),
+              onChanged: (value) {
+                setState(() {
+                  strokeWidth = value;
+                });
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _openColorPicker() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Pick a color'),
+          content: SingleChildScrollView(
+            child: ColorPicker(
+              pickerColor: selectedColor,
+              onColorChanged: (color) {
+                setState(() {
+                  selectedColor = color;
+                });
+              },
+              showLabel: true,
+              pickerAreaHeightPercent: 0.8,
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Select'),
+              onPressed: () {
+                setState(() {
+                  isEraserSelected =
+                      false; // Reset eraser when a color is selected
+                });
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 

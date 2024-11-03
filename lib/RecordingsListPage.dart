@@ -1,76 +1,59 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
 class RecordingsListPage extends StatefulWidget {
+  final List<Map<String, String>> recordings;
+  const RecordingsListPage({super.key, required this.recordings});
+
   @override
   _RecordingsListPageState createState() => _RecordingsListPageState();
 }
 
 class _RecordingsListPageState extends State<RecordingsListPage> {
   final _audioPlayer = AudioPlayer();
-  List<FileSystemEntity> _recordings = [];
-  Directory? _recordingsDirectory;
+  String? _playingFilePath;
 
   @override
-  void initState() {
-    super.initState();
-    _initializeDirectory();
-  }
-
-  Future<void> _initializeDirectory() async {
-    // Get the app's documents directory
-    final directory = await getApplicationDocumentsDirectory();
-    _recordingsDirectory = Directory('${directory.path}/Recordings');
-
-    // Ensure the directory exists
-    if (!await _recordingsDirectory!.exists()) {
-      await _recordingsDirectory!.create(recursive: true);
-    }
-
-    _loadRecordings();
-  }
-
-  void _loadRecordings() {
-    setState(() {
-      _recordings = _recordingsDirectory!.listSync();
-    });
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
   }
 
   Future<void> _playRecording(String path) async {
-    await _audioPlayer.play(DeviceFileSource(path));
+    if (_playingFilePath != null && _playingFilePath == path) {
+      await _audioPlayer.stop();
+      setState(() {
+        _playingFilePath = null;
+      });
+    } else {
+      await _audioPlayer.play(DeviceFileSource(path));
+      setState(() {
+        _playingFilePath = path;
+      });
+    }
   }
 
-  Future<void> _renameRecording(File file) async {
-    TextEditingController renameController = TextEditingController(
-      text: file.path.split('/').last,
-    );
+  void _renameRecording(int index) {
     showDialog(
       context: context,
       builder: (context) {
+        String newTitle = widget.recordings[index]['title']!;
         return AlertDialog(
-          title: const Text("Rename Recording"),
+          title: Text('Rename Recording'),
           content: TextField(
-            controller: renameController,
-            decoration: const InputDecoration(hintText: "Enter new name"),
+            onChanged: (value) => newTitle = value,
+            controller: TextEditingController(text: newTitle),
           ),
           actions: [
             TextButton(
               onPressed: () {
+                setState(() {
+                  widget.recordings[index]['title'] = newTitle;
+                });
                 Navigator.of(context).pop();
               },
-              child: const Text("Cancel"),
-            ),
-            TextButton(
-              onPressed: () async {
-                final newPath =
-                    '${file.parent.path}/${renameController.text}.m4a';
-                await file.rename(newPath);
-                Navigator.of(context).pop();
-                _loadRecordings(); // Refresh the list after renaming
-              },
-              child: const Text("Rename"),
+              child: Text('Rename'),
             ),
           ],
         );
@@ -79,37 +62,40 @@ class _RecordingsListPageState extends State<RecordingsListPage> {
   }
 
   @override
-  void dispose() {
-    _audioPlayer.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Recordings"),
+        title: Text('Recordings'),
         backgroundColor: const Color.fromRGBO(108, 10, 193, 1),
       ),
-      body: _recordings.isNotEmpty
-          ? ListView.builder(
-              itemCount: _recordings.length,
-              itemBuilder: (context, index) {
-                final file = _recordings[index] as File;
-                final fileName = file.path.split('/').last;
-                return ListTile(
-                  title: Text(fileName),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.edit),
-                    onPressed: () => _renameRecording(file),
+      backgroundColor: const Color.fromARGB(221, 218, 187, 243),
+      body: ListView.builder(
+        itemCount: widget.recordings.length,
+        itemBuilder: (context, index) {
+          final recording = widget.recordings[index];
+          return ListTile(
+            title: Text(recording['title']!),
+            subtitle: Text(recording['path']!),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(
+                    _playingFilePath == recording['path']
+                        ? Icons.stop
+                        : Icons.play_arrow,
                   ),
-                  onTap: () => _playRecording(file.path),
-                );
-              },
-            )
-          : const Center(
-              child: Text("No recordings available"),
+                  onPressed: () => _playRecording(recording['path']!),
+                ),
+                IconButton(
+                  icon: Icon(Icons.edit),
+                  onPressed: () => _renameRecording(index),
+                ),
+              ],
             ),
+          );
+        },
+      ),
     );
   }
 }
